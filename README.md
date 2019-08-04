@@ -23,7 +23,8 @@ by Adafruit's implementation of [UF2](https://github.com/adafruit/Adafruit_nRF52
 
 # ArraySize2.h
 
-This header provides a safer compile-time array count macro.
+This header provides a **_safer_** compile-time array count macro, when using a C++ compiler.
+When compiling for C99, a warning is generated indicating the macro is not type-safe.
 
 ### The common, unsafe macro
 
