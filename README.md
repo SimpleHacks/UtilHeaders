@@ -39,9 +39,15 @@ void foo() {
   }
   // do real work...  
 }
+void baz() {
+  long a[] = { 7, 3, 5, -7, 12 };
+  vector<long> v(a, a + ARRAY_SIZE(a));
+  std::sort(a, a + ARRAY_SIZE(a));
+  // use the sorted vector
+}
 ```
 
-### Why this is dangerous
+### Why the macro is dangerous
 
 Even when used carefully, the above unsafe macro will **_silently fail_**
 if (when) a later maintainer changes this to a dynamically allocated array,
@@ -61,6 +67,15 @@ void foo() {
   // do real work...  
 }
 ```
+
+Even the following has a non-intuitive result, typically outputting `1`:
+```C++
+void bar(int beta[13])
+{
+  std::cout << ARRAY_SIZE(beta);
+}
+```
+
 
 ### Solution #1
 
@@ -144,9 +159,11 @@ result by zero, and thus do not affect the final result.
 
 The third line is, in essence the old C99 type-unsafe sizeof() macro:
 `sizeof(arr) / sizeof((arr)[0])`
-However, since it never compiles unless it's an array, it's now type-safe.
+However, since that third line never compiles unless it's an array due
+to check #1 or check #2, using this notation is now type-safe.
 
 ##### Other benefits
-The result is, itself, constexpr compliant.
+* The result is, itself, constexpr compliant.
+* This solutions works even for local types.
 
 # Enjoy!
