@@ -29,18 +29,11 @@ SOFTWARE.
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 
-
-// The string result produced by asctime contains exactly 26 characters and has the form:
-// 'Wed Jan 02 02:03:55 1980\n\0'
-//  0....-....1....-....2... . -
-// Item    | Indices
-// ========+=========
-// Year    | 20..23 
-// Month   |  4.. 6 
-// Day     |  8.. 9
-// Hour    | 11..12
-// Minute  | 14..15 
-// Seconds | 17..18
+#define __TIMESTAMP_ISO8601_DATETIME_ (\
+  __TIMESTAMP_ISO8601_DATE__ "T"                  \
+  (__TIMESTAMP__ [11u]) (__TIMESTAMP__ [12u]) ":" \
+  (__TIMESTAMP__ [14u]) (__TIMESTAMP__ [15u]) ":" \
+  (__TIMESTAMP__ [17u]) (__TIMESTAMP__ [18u])     )
 
 #define __TIMESTAMP_YEAR_INT__ ((( \
   (__TIMESTAMP__ [20u] - '0')  * 10u + \
@@ -80,14 +73,53 @@ SOFTWARE.
  + (__TIMESTAMP__ [18u] == '?' ? 0u : __TIMESTAMP__ [18u] - '0')       )
 
 
-#define __TIMESTAMP_MSDOS_INT__             ( \
+#define __TIMESTAMP_MSDOS_DATE_INT__        ( \
   ((__TIMESTAMP_YEAR_INT__  - 1980u) << 9u) | \
   ( __TIMESTAMP_MONTH_INT__          << 5u) | \
   ( __TIMESTAMP_DAY_INT__            << 0u) )
 
-#define __TIMESTAMP_MSDOS_INT__         ( \
+#define __TIMESTAMP_MSDOS_TIME_INT__    ( \
   ( __TIMESTAMP_HOUR_INT__      << 11u) | \
   ( __TIMESTAMP_MINUTE_INT__    <<  5u) | \
   ( __TIMESTAMP_SECONDS_INT__   <<  0u) )
+
+static const uint8_t __TIMESTAMP_ISO8601_DATE__[] =
+{
+    ( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0',
+    '-'
+    ( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0',
+    '-'
+    ( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0',
+    '\0'
+};
+static const uint8_t __TIMESTAMP_ISO8601_DATETIME__[] =
+{
+    ( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0',
+    '-'
+    ( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0',
+    '-'
+    ( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0',
+    'T'
+    ( (__TIMESTAMP_HOUR_INT__    /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_HOUR_INT__    /    1) % 10 ) + '0',
+    ':'
+    ( (__TIMESTAMP_MINUTE_INT__  /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_MINUTE_INT__  /    1) % 10 ) + '0',
+    ':'
+    ( (__TIMESTAMP_SECONDS_INT__ /   10) % 10 ) + '0',
+    ( (__TIMESTAMP_SECONDS_INT__ /    1) % 10 ) + '0',
+    '\0'
+};
+
   
 #endif // TIMESTAMP_H
