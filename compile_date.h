@@ -29,13 +29,13 @@ SOFTWARE.
 #ifndef COMPILE_DATE_H
 #define COMPILE_DATE_H
 
-#define __YEAR_INT__ ((( \
+#define __DATE_YEAR_INT__ ((( \
   (__DATE__ [ 7u] - '0')  * 10u + \
   (__DATE__ [ 8u] - '0')) * 10u + \
   (__DATE__ [ 9u] - '0')) * 10u + \
   (__DATE__ [10u] - '0'))
 
-#define __MONTH_INT__ ( \
+#define __DATE_MONTH_INT__ ( \
   (__DATE__ [2u] == 'n' && __DATE__ [1u] == 'a') ?  1u  /*Jan*/ \
 : (__DATE__ [2u] == 'b'                        ) ?  2u  /*Feb*/ \
 : (__DATE__ [2u] == 'r' && __DATE__ [1u] == 'a') ?  3u  /*Mar*/ \
@@ -43,39 +43,39 @@ SOFTWARE.
 : (__DATE__ [2u] == 'y'                        ) ?  5u  /*May*/ \
 : (__DATE__ [2u] == 'n'                        ) ?  6u  /*Jun*/ \
 : (__DATE__ [2u] == 'l'                        ) ?  7u  /*Jul*/ \
-: (__DATE__ [2u] == 'g'                        ) ?  8u  /*Jul*/ \
-: (__DATE__ [2u] == 'p'                        ) ?  9u  /*Jul*/ \
-: (__DATE__ [2u] == 't'                        ) ? 10u  /*Jul*/ \
-: (__DATE__ [2u] == 'v'                        ) ? 11u  /*Jul*/ \
+: (__DATE__ [2u] == 'g'                        ) ?  8u  /*Aug*/ \
+: (__DATE__ [2u] == 'p'                        ) ?  9u  /*Sep*/ \
+: (__DATE__ [2u] == 't'                        ) ? 10u  /*Oct*/ \
+: (__DATE__ [2u] == 'v'                        ) ? 11u  /*Nov*/ \
 :                                                  12u  /*Dec*/ )
 
-#define __DAY_INT__ ( \
+#define __DATE_DAY_INT__ ( \
    (__DATE__ [4u] == ' ' ? 0u : __DATE__ [4u] - '0') * 10u \
  + (__DATE__ [5u] - '0')                                   )
 
 // __TIME__ expands to an eight-character string constant
 // "23:59:01", or (if cannot determine time) "??:??:??" 
-#define __HOUR_INT__ ( \
+#define __TIME_HOUR_INT__ ( \
    (__TIME__ [0u] == '?' ? 0u : __TIME__ [0u] - '0') * 10u \
  + (__TIME__ [1u] == '?' ? 0u : __TIME__ [1u] - '0')       )
 
-#define __MINUTE_INT__ ( \
+#define __TIME_MINUTE_INT__ ( \
    (__TIME__ [3u] == '?' ? 0u : __TIME__ [3u] - '0') * 10u \
  + (__TIME__ [4u] == '?' ? 0u : __TIME__ [4u] - '0')       )
 
-#define __SECONDS_INT__ ( \
+#define __TIME_SECONDS_INT__ ( \
    (__TIME__ [6u] == '?' ? 0u : __TIME__ [6u] - '0') * 10u \
  + (__TIME__ [7u] == '?' ? 0u : __TIME__ [7u] - '0')       )
 
 
-#define __DOSDATE__ ( \
-  ((__YEAR_INT__  - 1980u) << 9u) | \
-  ( __MONTH_INT__          << 5u) | \
-  ( __DAY_INT__            << 0u) )
+#define __DATE_MSDOS_INT__             ( \
+  ((__DATE_YEAR_INT__  - 1980u) << 9u) | \
+  ( __DATE_MONTH_INT__          << 5u) | \
+  ( __DATE_DAY_INT__            << 0u) )
 
-#define __DOSTIME__ ( \
-  ( __HOUR_INT__  << 11u) | \
-  ( __MONTH_INT__ <<  5u) | \
-  ( __DAY_INT__   <<  0u) )
-
+#define __TIME_MSDOS_INT__         ( \
+  ( __TIME_HOUR_INT__      << 11u) | \
+  ( __TIME_MINUTE_INT__    <<  5u) | \
+  ( __TIME_SECONDS_INT__   <<  0u) )
+  
 #endif // COMPILE_DATE_H
