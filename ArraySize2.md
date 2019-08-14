@@ -7,7 +7,10 @@ functions, for example.
 
 A little history on this concept is likely useful.
 
-### The common, unsafe macro
+<details>
+    <summary>The common, unsafe macro</summary>
+
+<p>
 
 The internet is full of the following macro:
 `#define ARRAY_SIZE(arr) sizeof(arr) / sizeof(arr[0])`
@@ -29,7 +32,13 @@ void baz() {
 }
 ```
 
-### Why the macro is dangerous
+</details>
+
+
+<details>
+    <summary>Why the unsafe macro is dangerous</summary>
+
+<p>
 
 Even when used carefully, the above unsafe macro will **_silently fail_**
 if (when) a later maintainer changes this to a dynamically allocated array,
@@ -59,12 +68,20 @@ void bar(int beta[13])
 ```
 
 
+</details>
+
+
+<details>
+    <summary>Solution #1</summary>
+
+<p>
+
 ### Solution #1
 
 The header includes a solution published in the [March 6th, 2007](http://drdobbs.com/cpp/197800525?pgno=1)
 Dr. Dobbs Journal, written by Ivan J. Johnson. 
 
-Conceptually, solution is simple:
+Conceptually, this solution is simple:
 ```
 if x is not an array
   issue a compile-time error
@@ -75,7 +92,10 @@ else
 How it ensures a compile-time error when it's not an
 array is rather elegant....
 
-##### Check #1
+<details>
+    <summary>Check #1</summary>
+
+<p>
 
 `0 * sizeof(reinterpret_cast<const ::Bad_arg_to_COUNTOF*>(arr))`
 
@@ -89,14 +109,20 @@ Any of these will cause a compile-time error. Naming the class
 `::Bad_arg_to_COUNTOF` simply helps because the class name is
 likely to appear in the compiler's error message.
 
-If check1 succeeded, then the parameter must be one of:
+Therefore, if check1 succeeded, then the parameter must be one of:
 1. an integral type
 2. an enumerated type
 3. a pointer to an object
 4. an array
 
 
-##### Check #2
+</details>
+
+
+<details>
+    <summary>Check #2</summary>
+
+<p>
 
 `0 * sizeof(::Bad_arg_to_COUNTOF::check_type((arr), &(arr)))`
 
@@ -133,19 +159,39 @@ When the parameter is ...
    That overload returns a complete type (`Is_array`).  Because it returns
    a complete type, `sizeof(Is_array)` is a valid expression.
 
-##### Summary
+
+</details>
+
+<details>
+    <summary>Combining Checks #1 and #2</summary>
+
+<p>
+
 Check #1 and Check #2, in combination, means the compiler has
 **_EXCLUDED_** every possible type **_except for_** arrays via compilation
 errors, before reaching the third line.  Both these checks multiply their
 result by zero, and thus do not affect the final result.
+
+
+</details>
+
+
+<details>
+    <summary>Line #3</summary>
+
+<p>
 
 The third line is, in essence the old C99 type-unsafe sizeof() macro:
 `sizeof(arr) / sizeof((arr)[0])`
 However, since that third line never compiles unless it's an array due
 to check #1 or check #2, using this notation is now type-safe.
 
+</details>
+
+</details>
+
 ##### Other benefits
-* The result is, itself, constexpr compliant.
-* This solutions works even for local types.
+* Results of these macros are each `constexpr` compliant.
+* At least solution #1 works even for local types.
 
 # Enjoy!
