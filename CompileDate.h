@@ -74,8 +74,8 @@ SOFTWARE.
   ( __DAY_INT__            << 0u) )
 
 #define __DOSTIME__ ( \
-  ( __HOUR_INT__  << 11u) | \
-  ( __MONTH_INT__ <<  5u) | \
-  ( __DAY_INT__   <<  0u) )
+  ( __HOUR_INT__    << 11u) | \
+  ( __MINUTE_INT__  <<  5u) | \
+  ( __SECONDS_INT__ <<  0u) )
 
 #endif // COMPILE_DATE_H
