@@ -30,7 +30,8 @@ SOFTWARE.
 #define STATIC_EVAL_H
 
 // use to ensure static evaluation occcurs. e.g.,
-// if (static_eval<int, length_alpha("hello, world2")>::value > 7) {
+// #include <constepr_strlen.h> // also in this repository
+// if (static_eval<int, constexpr_strlen("hello, world2")>::value > 7) {
 //     ....
 // }
 
