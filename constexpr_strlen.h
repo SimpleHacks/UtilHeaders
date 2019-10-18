@@ -29,11 +29,39 @@ SOFTWARE.
 #ifndef CONSTEXPR_STRLEN_H
 #define CONSTEXPR_STRLEN_H
 
-template< size_t N >
-constexpr size_t constexpr_strlen( char const (&)[N] )
-{
-  return N-1;
-}
+#ifndef __has_feature
+    #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
+
+#if __cpp_constexpr >= 200704 || __has_feature(cxx_constexpr)
+    // avr gcc  5.4  and higher
+    // clang    3.3  and higher, using -std=c++11
+    // gcc      5.4  and higher, using -std=c++11
+    // msvc    19.15 and higher
+    template< size_t N >
+    constexpr inline size_t constexpr_strlen( char const (&)[N] )
+    {
+        return N-1;
+    }
+#endif
+
+#if __cpp_constexpr >= 201603
+    // avr gcc -- not supported (as of v 5.4.0)
+    // msvc    -- not supported (as of v 19.22)
+    // gcc   7.2.1 and higher, using -std=c++17
+    // clang 5.0.0 and higher, using -std=c++17
+    constexpr inline size_t constexpr_strlen( const char* s )
+    {
+        return (
+            (0 == s) ? 0 :
+                (*s == '\0') ? 0 :
+                    1 + constexpr_strlen((const char*)(s+1))
+            );
+    }
+#endif
+
+
+
 
 #endif // #ifndef CONSTEXPR_STRLEN_H
 

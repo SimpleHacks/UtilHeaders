@@ -29,11 +29,19 @@ SOFTWARE.
 #ifndef TIMESTAMP_H
 #define TIMESTAMP_H
 
-#define __TIMESTAMP_ISO8601_DATETIME_ (\
-  __TIMESTAMP_ISO8601_DATE__ "T"                  \
-  (__TIMESTAMP__ [11u]) (__TIMESTAMP__ [12u]) ":" \
-  (__TIMESTAMP__ [14u]) (__TIMESTAMP__ [15u]) ":" \
-  (__TIMESTAMP__ [17u]) (__TIMESTAMP__ [18u])     )
+// see https://godbolt.org/z/H7WC_4
+
+#ifndef __has_feature
+    #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
+
+// This allows conditional declaration of the below as `constexpr`,
+// unless the compiler has not implemented the relevant feature.
+#if __cpp_constexpr >= 200704  || __has_feature(cxx_constexpr) // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2235.pdf
+    #define __TIMESTAMP_H_CONSTEXPR constexpr
+#else
+    #define __TIMESTAMP_H_CONSTEXPR
+#endif    
 
 #define __TIMESTAMP_YEAR_INT__ ((( \
   (__TIMESTAMP__ [20u] - '0')  * 10u + \
@@ -83,43 +91,43 @@ SOFTWARE.
   ( __TIMESTAMP_MINUTE_INT__    <<  5u) | \
   ( __TIMESTAMP_SECONDS_INT__   <<  0u) )
 
-static const uint8_t __TIMESTAMP_ISO8601_DATE__[] =
+__TIMESTAMP_H_CONSTEXPR
+static const char __TIMESTAMP_ISO8601_DATE__[] =
 {
-    ( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0',
-    '-'
-    ( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0',
-    '-'
-    ( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0',
+    (char)(( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0'),
     '\0'
 };
-static const uint8_t __TIMESTAMP_ISO8601_DATETIME__[] =
+__TIMESTAMP_H_CONSTEXPR
+const char __TIMESTAMP_ISO8601_DATETIME__[] =
 {
-    ( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0',
-    '-'
-    ( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0',
-    '-'
-    ( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0',
-    'T'
-    ( (__TIMESTAMP_HOUR_INT__    /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_HOUR_INT__    /    1) % 10 ) + '0',
-    ':'
-    ( (__TIMESTAMP_MINUTE_INT__  /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_MINUTE_INT__  /    1) % 10 ) + '0',
-    ':'
-    ( (__TIMESTAMP_SECONDS_INT__ /   10) % 10 ) + '0',
-    ( (__TIMESTAMP_SECONDS_INT__ /    1) % 10 ) + '0',
+    (char)(( (__TIMESTAMP_YEAR_INT__    / 1000) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /  100) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_YEAR_INT__    /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__TIMESTAMP_MONTH_INT__   /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_MONTH_INT__   /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__TIMESTAMP_DAY_INT__     /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_DAY_INT__     /    1) % 10 ) + '0'),
+    'T',
+    (char)(( (__TIMESTAMP_HOUR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_HOUR_INT__    /    1) % 10 ) + '0'),
+    ':',
+    (char)(( (__TIMESTAMP_MINUTE_INT__  /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_MINUTE_INT__  /    1) % 10 ) + '0'),
+    ':',
+    (char)(( (__TIMESTAMP_SECONDS_INT__ /   10) % 10 ) + '0'),
+    (char)(( (__TIMESTAMP_SECONDS_INT__ /    1) % 10 ) + '0'),
     '\0'
 };
-
-  
 #endif // TIMESTAMP_H

@@ -29,6 +29,20 @@ SOFTWARE.
 #ifndef COMPILE_DATE_H
 #define COMPILE_DATE_H
 
+// see https://godbolt.org/z/3dSuqQ
+
+#ifndef __has_feature
+    #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
+
+// This allows conditional declaration of the below as `constexpr`,
+// unless the compiler has not implemented the relevant feature.
+#if __cpp_constexpr >= 200704  || __has_feature(cxx_constexpr) // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2235.pdf
+    #define __COMPILE_DATE_H_CONSTEXPR constexpr
+#else
+    #define __COMPILE_DATE_H_CONSTEXPR
+#endif    
+
 #define __DATE_YEAR_INT__ ((( \
   (__DATE__ [ 7u] - '0')  * 10u + \
   (__DATE__ [ 8u] - '0')) * 10u + \
@@ -77,5 +91,45 @@ SOFTWARE.
   ( __TIME_HOUR_INT__      << 11u) | \
   ( __TIME_MINUTE_INT__    <<  5u) | \
   ( __TIME_SECONDS_INT__   <<  0u) )
-  
+
+__COMPILE_DATE_H_CONSTEXPR
+static const char __DATE_ISO8601_DATE__[] =
+{
+    (char)(( (__DATE_YEAR_INT__    / 1000) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /  100) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__DATE_MONTH_INT__   /   10) % 10 ) + '0'),
+    (char)(( (__DATE_MONTH_INT__   /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__DATE_DAY_INT__     /   10) % 10 ) + '0'),
+    (char)(( (__DATE_DAY_INT__     /    1) % 10 ) + '0'),
+    '\0'
+};
+
+__COMPILE_DATE_H_CONSTEXPR
+const char __DATE_ISO8601_DATETIME__[] =
+{
+    (char)(( (__DATE_YEAR_INT__    / 1000) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /  100) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__DATE_YEAR_INT__    /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__DATE_MONTH_INT__   /   10) % 10 ) + '0'),
+    (char)(( (__DATE_MONTH_INT__   /    1) % 10 ) + '0'),
+    '-',
+    (char)(( (__DATE_DAY_INT__     /   10) % 10 ) + '0'),
+    (char)(( (__DATE_DAY_INT__     /    1) % 10 ) + '0'),
+    'T',
+    (char)(( (__TIME_HOUR_INT__    /   10) % 10 ) + '0'),
+    (char)(( (__TIME_HOUR_INT__    /    1) % 10 ) + '0'),
+    ':',
+    (char)(( (__TIME_MINUTE_INT__  /   10) % 10 ) + '0'),
+    (char)(( (__TIME_MINUTE_INT__  /    1) % 10 ) + '0'),
+    ':',
+    (char)(( (__TIME_SECONDS_INT__ /   10) % 10 ) + '0'),
+    (char)(( (__TIME_SECONDS_INT__ /    1) % 10 ) + '0'),
+    '\0'
+};
 #endif // COMPILE_DATE_H

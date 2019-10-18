@@ -35,12 +35,22 @@ SOFTWARE.
 //     ....
 // }
 
+#ifndef __has_feature
+    #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#endif
 
-template<typename T, T V>
-struct static_eval
-{
-  static constexpr T value = V;
-};
+
+#if __cpp_constexpr >= 200704 || __has_feature(cxx_constexpr)
+    // avr gcc  5.4  and higher
+    // clang    3.3  and higher, using -std=c++11
+    // gcc      5.4  and higher, using -std=c++11
+    // msvc    19.15 and higher
+    template<typename T, T V>
+    struct static_eval
+    {
+        static constexpr T value = V;
+    };
+#endif
 
 #endif // #ifndef STATIC_EVAL_H
 
