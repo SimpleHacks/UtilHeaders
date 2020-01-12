@@ -29,17 +29,30 @@ SOFTWARE.
 #ifndef ARRAYSIZE2_H
 #define ARRAYSIZE2_H
 
+/**
+    The following items, if defined prior to inclusion of this header file,
+    will modify its  behavior:
+
+        ARRAYSIZE2_ALLOW_UNSAFE_ARRAYSIZE2_MACRO
+        -- if defined, will allow use of type-unsafe macro
+           Typically only used for C programs, but strongly discouraged
+        ARRAYSIZE2_SHOW_VERSION_MESSAGE
+        -- if defined, will show which version of ARRAY_SIZE2 macro is selected
+        -- else
+*/
+
+
 // see example source at:
-// https://godbolt.org/z/gPYgJB
+// https://godbolt.org/z/ZQM-Vb
 #ifndef __has_feature
     #define __has_feature(x) 0 // Compatibility with non-clang compilers.
 #endif
 
 #if __cplusplus >= 201103L ||    /* any compiler claiming C++11 support */ \
-    _MSC_VER >= 1900 ||          /* Visual C++ 2015 or higher           */ \
+    (_MSC_VER >= 1900 && __cplusplus != 199711L) ||    /* Visual C++ 2015 or higher           */ \
     __has_feature(cxx_constexpr) /* CLang versions supporting constexp  */
 
-    // validated using:
+    // Validation using each of:
     //   ARM       gcc  6.3.0
     //   ARM64     gcc  6.3.0
     //   x86-64    icc 18.0.0
@@ -53,7 +66,10 @@ SOFTWARE.
     //   FRC 2019, 2020
     //   Raspbian Stretch, Buster
     //   WebAssembly
-    #pragma message "C++11 version ARRAY_SIZE2"
+    #include <stddef.h> // required for size_t
+    #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
+        #pragma message( "C++11 version ARRAY_SIZE2" )
+    #endif
 
     namespace detail
     {
@@ -73,7 +89,7 @@ SOFTWARE.
           (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)       \
       )))
 
-    // validated using
+    // Validation using each of:
     //   AVR      gcc  5.4.0
     //   ARM      gcc  5.4.0
     //   ARM64    gcc  5.4.0
@@ -87,14 +103,24 @@ SOFTWARE.
     //   ellcc         0.1.33
     //   x86    djgpp  4.9.4
     //   x86-64 clang  3.2
-    #pragma message "C++98 version ARRAY_SIZE2"
+    #include <stddef.h> // required for size_t
+    #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
+        #pragma message "C++98 version ARRAY_SIZE2"
+    #endif
     template <typename T, size_t N>
     char(&_ArraySizeHelperRequiresArray(T(&)[N]))[N];
     #define ARRAY_SIZE2(x) sizeof(_ArraySizeHelperRequiresArray(x))
 
 #elif __cplusplus >= 199711L
     
-    #pragma message "using Ivan J. Johnson's ARRAY_SIZE2"
+    #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
+        #pragma message( "using Ivan J. Johnson's ARRAY_SIZE2" )
+    #endif
+    // Validation using MSVC v19.14 with compiler switch `/Zc:__cplusplus-`
+
+    // MSVC, prior to Visual Studio 2017 15.7 Preview 3,
+    // stubbornly kept returning 199711L. See
+    // https://web.archive.org/web/20190227232530/https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
 
     // Works on older compilers, even Visual C++ 6....
     // Created by Ivan J. Johnson, March 06, 2007
@@ -182,10 +208,13 @@ SOFTWARE.
 
 #elif _MSC_VER // Visual C++ fallback for _MSC_VER < 1900 (pre-VC++2015)
 
-    #pragma message "using Microsoft Visual C++ intrinsic ARRAY_SIZE2"
+    #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
+        #pragma message "using Microsoft Visual C++ intrinsic ARRAY_SIZE2"
+    #endif
     #define ARRAY_SIZE2(arr) _countof(arr)
 
 #else
+
     // validated using:
     //   MSP430  gcc   4.5.3
     //   x86-64  icc  16.0.3
@@ -193,14 +222,24 @@ SOFTWARE.
     //   x86-64 clang  3.0.0
     //   AVR     gcc   4.5.4
     //   ARM     gcc   4.5.4
-    // #pragma warning "Using type-unsafe version of ARRAY_SIZE2"
-    // This is the worst-case scenario macro.
+    
+    #error "Unable to provide type-safe ARRAY_SIZE2 macro"
+    // This is the worst-case scenario macro, found in many places:
+    //
+    // #define ARRAY_SIZE(arr) ( sizeof(arr) / sizeof(arr[0]) )
+    //
     // While it is valid C, it is NOT typesafe.
-    // unfortunately, the above compilers do NOT always print a warning.
-    // Thus, I am strongly considering removing this option altogether.
-    // For example, if the parameter arr is a pointer instead of array,
-    // the compiler will SILENTLY give a (likely) incorrect result. 
-    // #define ARRAY_SIZE2(arr) sizeof(arr) / sizeof(arr[0])
+    //
+    // For example, if the parameter `arr` was originally an array,
+    // the code would work.  If the code was then refactored, and the
+    // parameter became a pointer, then the compiler will SILENTLY
+    // give a (likely) incorrect result, because sizeof(void*) is rarely
+    // equal to the array's true size.
+    //
+    // Unfortunately, the above compilers do NOT always print a warning.
+    // Thus, I have removed this option altogether, as the benefit of
+    // having a same macro name is outweighed by the potential of suggesting
+    // this would be safe to define/use.
 
 #endif
 
