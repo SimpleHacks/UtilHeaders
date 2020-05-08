@@ -1,28 +1,28 @@
 /**
 
-The MIT License (MIT)
+    The MIT License (MIT)
 
-Copyright (c) Henry Gabryjelski
+    Copyright (c) SimpleHacks, Henry Gabryjelski
 
-All rights reserved.
+    All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
 */
 
@@ -30,20 +30,16 @@ SOFTWARE.
 #define ARRAYSIZE2_H
 
 /**
-    The following items, if defined prior to inclusion of this header file,
-    will modify its  behavior:
+    The following, if defined prior to inclusion of this header file,
+    will modify its behavior as noted:
 
-        ARRAYSIZE2_ALLOW_UNSAFE_ARRAYSIZE2_MACRO
-        -- if defined, will allow use of type-unsafe macro
-           Typically only used for C programs, but strongly discouraged
         ARRAYSIZE2_SHOW_VERSION_MESSAGE
         -- if defined, will show which version of ARRAY_SIZE2 macro is selected
-        -- else
-*/
+ */
 
 
 // see example source at:
-// https://godbolt.org/z/ZQM-Vb
+// [https://godbolt.org/z/FKilKo]
 #ifndef __has_feature
     #define __has_feature(x) 0 // Compatibility with non-clang compilers.
 #endif
@@ -52,34 +48,20 @@ SOFTWARE.
     (_MSC_VER >= 1900 && __cplusplus != 199711L) ||    /* Visual C++ 2015 or higher           */ \
     __has_feature(cxx_constexpr) /* CLang versions supporting constexp  */
 
-    // Validation using each of:
-    //   ARM       gcc  6.3.0
-    //   ARM64     gcc  6.3.0
-    //   x86-64    icc 18.0.0
-    //   x86-64    gcc  6.1
-    //   x86-64  clang  6.0
-    //   x86     djgpp  6.4.0
-    //   power64le gcc  6.3.0
-    //   MSP430    gcc  6.2.1
-    //   Arduino Mega 1.8.9
-    //   Arduino Uno  1.8.9
-    //   FRC 2019, 2020
-    //   Raspbian Stretch, Buster
-    //   WebAssembly
     #include <stddef.h> // required for size_t
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
-        #pragma message( "C++11 version ARRAY_SIZE2" )
+        #pragma message( "ARRAY_SIZE2 -- Using C++11 version" )
     #endif
 
     namespace detail
     {
         template <typename T, size_t N>
-        constexpr size_t countof(T const (&)[N]) noexcept
+        constexpr size_t ARRAY_SIZE2_ARGUMENT_CANNOT_BE_POINTER(T const (&)[N]) noexcept
         {
             return N;
         }
     } // namespace detail
-    #define ARRAY_SIZE2(arr) detail::countof(arr)
+    #define ARRAY_SIZE2(arr) detail::ARRAY_SIZE2_ARGUMENT_CANNOT_BE_POINTER(arr)
 
 #elif __cplusplus >= 199711L && ( /* C++ 98 trick */   \
       defined(__INTEL_COMPILER) ||                     \
@@ -89,116 +71,96 @@ SOFTWARE.
           (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)       \
       )))
 
-    // Validation using each of:
-    //   AVR      gcc  5.4.0
-    //   ARM      gcc  5.4.0
-    //   ARM64    gcc  5.4.0
-    //   x86-64   icc 13.0.1
-    //   x86-64   icc 17.0.0
-    //   x86-64   gcc  4.7.1
-    //   PowerPC  gcc  4.8.5
-    //   MSP430   gcc  4.5.3
-    //   MIPS64   gcc  5.4
-    //   MIPS     gcc  5.4
-    //   ellcc         0.1.33
-    //   x86    djgpp  4.9.4
-    //   x86-64 clang  3.2
     #include <stddef.h> // required for size_t
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
-        #pragma message "C++98 version ARRAY_SIZE2"
+        #pragma message "ARRAY_SIZE2 -- Using C++98 version"
     #endif
     template <typename T, size_t N>
     char(&_ArraySizeHelperRequiresArray(T(&)[N]))[N];
     #define ARRAY_SIZE2(x) sizeof(_ArraySizeHelperRequiresArray(x))
 
-#elif __cplusplus >= 199711L
+#elif defined(__cplusplus) // && ((__cplusplus >= 199711L) || defined(__INTEL_COMPILER) || defined(__clang__))
     
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
-        #pragma message( "using Ivan J. Johnson's ARRAY_SIZE2" )
+        #pragma message( "ARRAY_SIZE2 -- Using Ivan J. Johnson's C++ version" )
     #endif
-    // Validation using MSVC v19.14 with compiler switch `/Zc:__cplusplus-`
-
-    // MSVC, prior to Visual Studio 2017 15.7 Preview 3,
-    // stubbornly kept returning 199711L. See
-    // https://web.archive.org/web/20190227232530/https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-__cplusplus/
-
-    // Works on older compilers, even Visual C++ 6....
-    // Created by Ivan J. Johnson, March 06, 2007
-    // See http://drdobbs.com/cpp/197800525?pgno=1
-    //
-    // Pseudocode:
-    // if x is not an array
-    //   issue a compile-time error
-    // else
-    //   use the traditional (non-typesafe) C99 COUNTOF expression
-    //
-    // If the argument is any of:
-    //    object of class type, such as an std::vector
-    //    floating-point type
-    //    function pointer
-    //    pointer-to-member
-    // then the first reinterpret_cast<> is not legal (compiler error)
-    //
-    // The type for check1 is chosen and named to help understand
-    // the cause of the error, because the class name is likely to
-    // appear in the compiler error message.
-    //
-    // If check1 succeeds, then the argument must be one of:
-    //    an integral type
-    //    an enumerated type
-    //    a pointer to an object
-    //    an array
-    //
-    // Check2 expands approximately to sizeof(check_type(x, &x)),
-    // where check_type is an overloaded function.
-    // Because this is purely a compile-time computation,
-    // the function is never really called or even implemented,
-    // but it lets the compiler apply overload resolution,
-    // which allows further type discrimination.
-    // There are three possibilities to consider:
-    //    x is an integral type or enumerated type.
-    //      In this case, neither of the two function overloads
-    //      is a match, resulting in a compiler error.
-    //    x is a pointer to an object.
-    //      In this case, the first argument to check_type()
-    //      is a pointer and the second one is a pointer-to-pointer.
-    //      The best function match is the first overload of check_type,
-    //      the one that returns an incomplete type (Is_pointer).
-    //      However, because Is_pointer is an incomplete type,
-    //      sizeof(Is_pointer) is not a valid expression,
-    //      resulting in a compiler error.
-    //    x is an array.
-    //      In this case, the first argument to check_type()
-    //      is an array and the second is a pointer-to-array.
-    //      A pointer-to-array is *NOT* convertible to a
-    //      pointer-to-pointer, so the first overload of
-    //      check_type() is not a match.
-    //      However, an array IS convertible to a pointer,
-    //      and a pointer-to-array already is a pointer.
-    //      Any pointer is convertible to a void*,
-    //      so the second function overload is a match.
-    //      That overload returns a complete type (Is_array).
-    //      Because it's a complete type,
-    //      sizeof(Is_array) is a valid expression.
-    //
-    // Thus, the compiler has EXCLUDED every possible type
-    // except arrays via compilation errors before reaching
-    // the third line.
-    // Moreover, check1 and check2 are reduced to the value zero,
-    // while the third line is the old type-unsafe C-style macro,
-    // now made entirely type-safe.
-    // 
-    // Additional benefits:
-    // The result is itself constexpr
-    // 
-    //
+    /*
+        Works on older compilers, even Visual C++ 6....
+        Created by Ivan J. Johnson, March 06, 2007
+        See http://drdobbs.com/cpp/197800525?pgno=1
+        
+        Pseudocode:
+        if x is not an array
+        issue a compile-time error
+        else
+        use the traditional (non-typesafe) C99 COUNTOF expression
+        
+        If the argument is any of:
+        object of class type, such as an std::vector
+        floating-point type
+        function pointer
+        pointer-to-member
+        then the first reinterpret_cast<> is not legal (compiler error)
+        
+        The type for check1 is chosen and named to help understand
+        the cause of the error, because the class name is likely to
+        appear in the compiler error message.
+        
+        If check1 succeeds, then the argument must be one of:
+        an integral type
+        an enumerated type
+        a pointer to an object
+        an array
+        
+        Check2 expands approximately to sizeof(check_type(x, &x)),
+        where check_type is an overloaded function.
+        Because this is purely a compile-time computation,
+        the function is never really called or even implemented,
+        but it lets the compiler apply overload resolution,
+        which allows further type discrimination.
+        There are three possibilities to consider:
+        x is an integral type or enumerated type.
+            In this case, neither of the two function overloads
+            is a match, resulting in a compiler error.
+        x is a pointer to an object.
+            In this case, the first argument to check_type()
+            is a pointer and the second one is a pointer-to-pointer.
+            The best function match is the first overload of check_type,
+            the one that returns an incomplete type (Is_pointer).
+            However, because Is_pointer is an incomplete type,
+            sizeof(Is_pointer) is not a valid expression,
+            resulting in a compiler error.
+        x is an array.
+            In this case, the first argument to check_type()
+            is an array and the second is a pointer-to-array.
+            A pointer-to-array is *NOT* convertible to a
+            pointer-to-pointer, so the first overload of
+            check_type() is not a match.
+            However, an array IS convertible to a pointer,
+            and a pointer-to-array already is a pointer.
+            Any pointer is convertible to a void*,
+            so the second function overload is a match.
+            That overload returns a complete type (Is_array).
+            Because it's a complete type,
+            sizeof(Is_array) is a valid expression.
+        
+        Thus, the compiler has EXCLUDED every possible type
+        except arrays via compilation errors before reaching
+        the third line.
+        Moreover, check1 and check2 are reduced to the value zero,
+        while the third line is the old type-unsafe C-style macro,
+        now made entirely type-safe.
+        
+        Additional benefits:
+        The result is itself constexpr
+    */
     #define ARRAY_SIZE2(arr) ( \
-       0 * sizeof(reinterpret_cast<const ::Bad_arg_to_COUNTOF*>(arr)) + /*check1*/ \
-       0 * sizeof(::Bad_arg_to_COUNTOF::check_type((arr), &(arr)))    + /*check2*/ \
-       sizeof(arr) / sizeof((arr)[0])                                   /* eval */ \
+       0 * sizeof(reinterpret_cast<const ::Bad_arg_to_ARRAY_SIZE2*>(arr)) + /*check1*/ \
+       0 * sizeof(::Bad_arg_to_ARRAY_SIZE2::check_type((arr), &(arr)))    + /*check2*/ \
+       sizeof(arr) / sizeof((arr)[0])                                       /* eval */ \
        )
 
-    struct Bad_arg_to_COUNTOF {
+    struct Bad_arg_to_ARRAY_SIZE2 {
        class Is_pointer; // incomplete
        class Is_array {};
        template <typename T>
@@ -206,14 +168,16 @@ SOFTWARE.
        static Is_array check_type(const void*, const void*);
     };
 
-#elif _MSC_VER // Visual C++ fallback for _MSC_VER < 1900 (pre-VC++2015)
+#elif !defined(__cplusplus) && defined(__GNUC__)
+
+    // Even C can have type-safety for equivalent of ARRAY_SIZE() macro,
+    // when using the following two GCC extensions:
+    //     typeof()
+    //     __builtin_types_compatible_p()
 
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
-        #pragma message "using Microsoft Visual C++ intrinsic ARRAY_SIZE2"
+        #pragma message( "ARRAY_SIZE2 -- Using GNUC version" )
     #endif
-    #define ARRAY_SIZE2(arr) _countof(arr)
-
-#else
 
     // validated using:
     //   MSP430  gcc   4.5.3
@@ -222,11 +186,26 @@ SOFTWARE.
     //   x86-64 clang  3.0.0
     //   AVR     gcc   4.5.4
     //   ARM     gcc   4.5.4
+
+    #define __SIMPLEHACKS_COMPATIBLE_TYPES__(a,b)   __builtin_types_compatible_p(typeof(a), typeof(b)) // GCC extensions
+    #define __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(x)  (sizeof(struct { int:-!!(x)*0x1ee7;})) // if x is zero, reports "error: negative width in bit-field '<anonymous>'"
+    #define __SIMPLEHACKS_MUST_BE_ARRAY__(x)        __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(__SIMPLEHACKS_COMPATIBLE_TYPES__((x), &(*x)))
+    #define ARRAY_SIZE2(_arr)       ( (sizeof(_arr) / sizeof((_arr)[0])) + __SIMPLEHACKS_MUST_BE_ARRAY__(_arr) ) // compile-time error if not an array
+
+#else
+
+    // *** ALL *** compilers on godbolt.org as of 2020-05-08
+    // now have a type-safe array element count macro defined.
+    //
+    // *** BOTH *** C++ and C source files are supported.
+    // 
+    // Thus, this appears to be 99.99% coverage.
     
     #error "Unable to provide type-safe ARRAY_SIZE2 macro"
-    // This is the worst-case scenario macro, found in many places:
+
+    // The worst-case scenario macro, found in many places:
     //
-    // #define ARRAY_SIZE(arr) ( sizeof(arr) / sizeof(arr[0]) )
+    // #define ARRAY_SIZE(arr) ( sizeof(arr) / sizeof(arr[0]) ) <-- EVIL!
     //
     // While it is valid C, it is NOT typesafe.
     //
@@ -236,10 +215,10 @@ SOFTWARE.
     // give a (likely) incorrect result, because sizeof(void*) is rarely
     // equal to the array's true size.
     //
-    // Unfortunately, the above compilers do NOT always print a warning.
-    // Thus, I have removed this option altogether, as the benefit of
-    // having a same macro name is outweighed by the potential of suggesting
-    // this would be safe to define/use.
+    // The good news is that all compilers on godbolt.org are now
+    // fully supported.  Therefore, if a new compiler is found,
+    // force a compile-time error, to avoid any suggestion that
+    // the above would be a safe macro to define/use.
 
 #endif
 
