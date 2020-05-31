@@ -1,9 +1,8 @@
 # ArraySize2.h
 
-This header provides a **_safer_** compile-time array count macro, when using a C++ compiler.
-When compiling for C99, a warning is generated indicating that use of this macro is not type-safe.
-Each macro compiles to a `constexpr`.  This allows use in compile-time assertions or other `constexpr`
-functions, for example.
+This header provides a **_safer_** compile-time array count macro, for both C and C++.
+On C++, each macro compiles to a `constexpr`.  This allows use in compile-time assertions or other `constexpr`
+functions, for example.  C does not have `constexpr`, but it is still determined at compile-time.
 
 A little history on this concept is likely useful.
 
