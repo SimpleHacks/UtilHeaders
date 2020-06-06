@@ -88,71 +88,8 @@
         Works on older compilers, even Visual C++ 6....
         Created by Ivan J. Johnson, March 06, 2007
         See http://drdobbs.com/cpp/197800525?pgno=1
-        
-        Pseudocode:
-        if x is not an array
-        issue a compile-time error
-        else
-        use the traditional (non-typesafe) C99 COUNTOF expression
-        
-        If the argument is any of:
-        object of class type, such as an std::vector
-        floating-point type
-        function pointer
-        pointer-to-member
-        then the first reinterpret_cast<> is not legal (compiler error)
-        
-        The type for check1 is chosen and named to help understand
-        the cause of the error, because the class name is likely to
-        appear in the compiler error message.
-        
-        If check1 succeeds, then the argument must be one of:
-        an integral type
-        an enumerated type
-        a pointer to an object
-        an array
-        
-        Check2 expands approximately to sizeof(check_type(x, &x)),
-        where check_type is an overloaded function.
-        Because this is purely a compile-time computation,
-        the function is never really called or even implemented,
-        but it lets the compiler apply overload resolution,
-        which allows further type discrimination.
-        There are three possibilities to consider:
-        x is an integral type or enumerated type.
-            In this case, neither of the two function overloads
-            is a match, resulting in a compiler error.
-        x is a pointer to an object.
-            In this case, the first argument to check_type()
-            is a pointer and the second one is a pointer-to-pointer.
-            The best function match is the first overload of check_type,
-            the one that returns an incomplete type (Is_pointer).
-            However, because Is_pointer is an incomplete type,
-            sizeof(Is_pointer) is not a valid expression,
-            resulting in a compiler error.
-        x is an array.
-            In this case, the first argument to check_type()
-            is an array and the second is a pointer-to-array.
-            A pointer-to-array is *NOT* convertible to a
-            pointer-to-pointer, so the first overload of
-            check_type() is not a match.
-            However, an array IS convertible to a pointer,
-            and a pointer-to-array already is a pointer.
-            Any pointer is convertible to a void*,
-            so the second function overload is a match.
-            That overload returns a complete type (Is_array).
-            Because it's a complete type,
-            sizeof(Is_array) is a valid expression.
-        
-        Thus, the compiler has EXCLUDED every possible type
-        except arrays via compilation errors before reaching
-        the third line.
-        Moreover, check1 and check2 are reduced to the value zero,
-        while the third line is the old type-unsafe C-style macro,
-        now made entirely type-safe.
-        
-        Additional benefits:
-        The result is itself constexpr
+
+        Full description is in markdown file array_size2.md
     */
     #define ARRAY_SIZE2(arr) ( \
        0 * sizeof(reinterpret_cast<const ::Bad_arg_to_ARRAY_SIZE2*>(arr)) + /*check1*/ \
@@ -164,8 +101,8 @@
        class Is_pointer; // incomplete
        class Is_array {};
        template <typename T>
-       static Is_pointer check_type(const T*, const T* const*);
-       static Is_array check_type(const void*, const void*);
+       static Is_pointer check_type(T const *, T const * const *);
+       static Is_array check_type(void const *, void const *);
     };
 
 #elif !defined(__cplusplus) && defined(__GNUC__)
@@ -194,31 +131,14 @@
 
 #else
 
-    // *** ALL *** compilers on godbolt.org as of 2020-05-08
-    // now have a type-safe array element count macro defined.
-    //
-    // *** BOTH *** C++ and C source files are supported.
-    // 
-    // Thus, this appears to be 99.99% coverage.
+    // The good news is that all compilers (as of 20202-05-08)
+    // on godbolt.org are fully supported.  Therefore, if some
+    // other compiler does not support any of the above method,
+    // it's important to force a compile-time error, to avoid
+    // any suggestion that this provides a safe macro.
     
     #error "Unable to provide type-safe ARRAY_SIZE2 macro"
 
-    // The worst-case scenario macro, found in many places:
-    //
-    // #define ARRAY_SIZE(arr) ( sizeof(arr) / sizeof(arr[0]) ) <-- EVIL!
-    //
-    // While it is valid C, it is NOT typesafe.
-    //
-    // For example, if the parameter `arr` was originally an array,
-    // the code would work.  If the code was then refactored, and the
-    // parameter became a pointer, then the compiler will SILENTLY
-    // give a (likely) incorrect result, because sizeof(void*) is rarely
-    // equal to the array's true size.
-    //
-    // The good news is that all compilers on godbolt.org are now
-    // fully supported.  Therefore, if a new compiler is found,
-    // force a compile-time error, to avoid any suggestion that
-    // the above would be a safe macro to define/use.
 
 #endif
 
