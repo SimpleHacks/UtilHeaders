@@ -2,7 +2,8 @@
 
 The MIT License (MIT)
 
-Copyright (c) Henry Gabryjelski
+Copyright (c) SimpleHacks, Henry Gabryjelski
+https://github.com/SimpleHacks/UtilHeaders
 
 All rights reserved.
 
