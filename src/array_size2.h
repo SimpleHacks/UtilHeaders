@@ -41,15 +41,15 @@ SOFTWARE.
 
 /**
     see example source at:
-    https://godbolt.org/z/c9vqWEdqo
+    https://godbolt.org/z/zzYoeK6Mf
 */
 
 #ifndef __has_feature
     #define __has_feature(x) 0 /* Compatibility with non-clang compilers. */
 #endif
 
-#if __cplusplus >= 201103L ||    /* any compiler claiming C++11 support */ \
-    (_MSC_VER >= 1900 && __cplusplus != 199711L) ||    /* Visual C++ 2015 or higher           */ \
+#if (defined(__cplusplus) && __cplusplus >= 201103L) ||    /* any compiler claiming C++11 support */ \
+    (defined(__cplusplus) && _MSC_VER >= 1900 && __cplusplus != 199711L) ||    /* Visual C++ 2015 or higher           */ \
     __has_feature(cxx_constexpr) /* CLang versions supporting constexp  */
 
     #include <stddef.h> /* required for size_t */
@@ -67,7 +67,7 @@ SOFTWARE.
     } /* namespace detail */
     #define ARRAY_SIZE2(arr) detail::ARRAY_SIZE2_ARGUMENT_CANNOT_BE_POINTER(arr)
 
-#elif __cplusplus >= 199711L && ( /* C++ 98 trick */   \
+#elif defined(__cplusplus) && __cplusplus >= 199711L && ( /* C++ 98 trick */   \
       defined(__INTEL_COMPILER) ||                     \
       defined(__clang__) ||                            \
       (defined(__GNUC__) && (                          \
@@ -111,6 +111,8 @@ SOFTWARE.
 
 #elif !defined(__cplusplus) && defined(__GNUC__)
 
+    #include <stdint.h>
+
     /**
         Even C can have type-safety for equivalent of ARRAY_SIZE() macro,
         when using the following two GCC extensions:
@@ -133,7 +135,7 @@ SOFTWARE.
     */
 
     #define __SIMPLEHACKS_COMPATIBLE_TYPES__(a,b)   __builtin_types_compatible_p(__typeof__(a), __typeof__(b)) /* GCC extensions */
-    #define __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(x)  (sizeof(struct { int:-!!(x)*0x1ee7;})) /* if x is zero, reports "error: negative width in bit-field '<anonymous>'" */
+    #define __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(x)  (sizeof(struct { uint8_t q: (-!!(x)*0x1ee7)+1u;})-1u) /* if x is zero, reports "error: negative width in bit-field '<anonymous>'" */
     #define __SIMPLEHACKS_MUST_BE_ARRAY__(x)        __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(__SIMPLEHACKS_COMPATIBLE_TYPES__((x), &(*x)))
     #define ARRAY_SIZE2(_arr)       ( (sizeof(_arr) / sizeof((_arr)[0])) + __SIMPLEHACKS_MUST_BE_ARRAY__(_arr) ) /* compile-time error if not an array */
 
@@ -152,4 +154,4 @@ SOFTWARE.
 
 #endif
 
-#endif  /* ARRAYSIZE2_H */
+#endif  // ARRAYSIZE2_H
