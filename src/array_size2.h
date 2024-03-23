@@ -39,17 +39,20 @@ SOFTWARE.
  */
 
 
-// see example source at:
-// [https://godbolt.org/z/FKilKo]
+/**
+see example source at:
+[https://godbolt.org/z/FKilKo]
+*/
+
 #ifndef __has_feature
-    #define __has_feature(x) 0 // Compatibility with non-clang compilers.
+    #define __has_feature(x) 0 /* Compatibility with non-clang compilers. */
 #endif
 
 #if __cplusplus >= 201103L ||    /* any compiler claiming C++11 support */ \
     (_MSC_VER >= 1900 && __cplusplus != 199711L) ||    /* Visual C++ 2015 or higher           */ \
     __has_feature(cxx_constexpr) /* CLang versions supporting constexp  */
 
-    #include <stddef.h> // required for size_t
+    #include <stddef.h> /* required for size_t */
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
         #pragma message( "ARRAY_SIZE2 -- Using C++11 version" )
     #endif
@@ -61,7 +64,7 @@ SOFTWARE.
         {
             return N;
         }
-    } // namespace detail
+    } /* namespace detail */
     #define ARRAY_SIZE2(arr) detail::ARRAY_SIZE2_ARGUMENT_CANNOT_BE_POINTER(arr)
 
 #elif __cplusplus >= 199711L && ( /* C++ 98 trick */   \
@@ -72,7 +75,7 @@ SOFTWARE.
           (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)       \
       )))
 
-    #include <stddef.h> // required for size_t
+    #include <stddef.h> /* required for size_t */
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
         #pragma message "ARRAY_SIZE2 -- Using C++98 version"
     #endif
@@ -80,7 +83,7 @@ SOFTWARE.
     char(&_ArraySizeHelperRequiresArray(T(&)[N]))[N];
     #define ARRAY_SIZE2(x) sizeof(_ArraySizeHelperRequiresArray(x))
 
-#elif defined(__cplusplus) // && ((__cplusplus >= 199711L) || defined(__INTEL_COMPILER) || defined(__clang__))
+#elif defined(__cplusplus) /* && ((__cplusplus >= 199711L) || defined(__INTEL_COMPILER) || defined(__clang__)) */
     
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
         #pragma message( "ARRAY_SIZE2 -- Using Ivan J. Johnson's C++ version" )
@@ -99,7 +102,7 @@ SOFTWARE.
        )
 
     struct Bad_arg_to_ARRAY_SIZE2 {
-       class Is_pointer; // incomplete
+       class Is_pointer; /* incomplete */
        class Is_array {};
        template <typename T>
        static Is_pointer check_type(T const *, T const * const *);
@@ -108,40 +111,45 @@ SOFTWARE.
 
 #elif !defined(__cplusplus) && defined(__GNUC__)
 
-    // Even C can have type-safety for equivalent of ARRAY_SIZE() macro,
-    // when using the following two GCC extensions:
-    //     typeof()
-    //     __builtin_types_compatible_p()
+    /**
+        Even C can have type-safety for equivalent of ARRAY_SIZE() macro,
+        when using the following two GCC extensions:
+           typeof()
+           __builtin_types_compatible_p()
+    */
 
     #if defined(ARRAYSIZE2_SHOW_VERSION_MESSAGE)
         #pragma message( "ARRAY_SIZE2 -- Using GNUC version" )
     #endif
 
-    // validated using:
-    //   MSP430  gcc   4.5.3
-    //   x86-64  icc  16.0.3
-    //   x86-64  gcc   4.1.2
-    //   x86-64 clang  3.0.0
-    //   AVR     gcc   4.5.4
-    //   ARM     gcc   4.5.4
+    /**
+        validated using:
+          MSP430  gcc   4.5.3
+          x86-64  icc  16.0.3
+          x86-64  gcc   4.1.2
+          x86-64 clang  3.0.0
+          AVR     gcc   4.5.4
+          ARM     gcc   4.5.4
+    */
 
-    #define __SIMPLEHACKS_COMPATIBLE_TYPES__(a,b)   __builtin_types_compatible_p(typeof(a), typeof(b)) // GCC extensions
-    #define __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(x)  (sizeof(struct { int:-!!(x)*0x1ee7;})) // if x is zero, reports "error: negative width in bit-field '<anonymous>'"
+    #define __SIMPLEHACKS_COMPATIBLE_TYPES__(a,b)   __builtin_types_compatible_p(__typeof__(a), __typeof__(b)) /* GCC extensions */
+    #define __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(x)  (sizeof(struct { int:-!!(x)*0x1ee7;})) /* if x is zero, reports "error: negative width in bit-field '<anonymous>'" */
     #define __SIMPLEHACKS_MUST_BE_ARRAY__(x)        __SIMPLEHACKS_BUILD_ERROR_ON_NONZERO__(__SIMPLEHACKS_COMPATIBLE_TYPES__((x), &(*x)))
-    #define ARRAY_SIZE2(_arr)       ( (sizeof(_arr) / sizeof((_arr)[0])) + __SIMPLEHACKS_MUST_BE_ARRAY__(_arr) ) // compile-time error if not an array
+    #define ARRAY_SIZE2(_arr)       ( (sizeof(_arr) / sizeof((_arr)[0])) + __SIMPLEHACKS_MUST_BE_ARRAY__(_arr) ) /* compile-time error if not an array */
 
 #else
 
-    // The good news is that all compilers (as of 20202-05-08)
-    // on godbolt.org are fully supported.  Therefore, if some
-    // other compiler does not support any of the above method,
-    // it's important to force a compile-time error, to avoid
-    // any suggestion that this provides a safe macro.
-    
+    /**
+        The good news is that all compilers (as of 20202-05-08)
+        on godbolt.org are fully supported.  Therefore, if some
+        other compiler does not support any of the above method,
+        it's important to force a compile-time error, to avoid
+        any suggestion that this provides a safe macro.
+    */
+   
     #error "Unable to provide type-safe ARRAY_SIZE2 macro"
 
 
 #endif
 
-
-#endif // ARRAYSIZE2_H
+#endif  /* ARRAYSIZE2_H */
