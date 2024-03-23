@@ -40,8 +40,8 @@ SOFTWARE.
 
 
 /**
-see example source at:
-[https://godbolt.org/z/FKilKo]
+    see example source at:
+    https://godbolt.org/z/c9vqWEdqo
 */
 
 #ifndef __has_feature
