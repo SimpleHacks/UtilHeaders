@@ -26,7 +26,7 @@ fail to compile if it was last modified on a leap-day:
 ```C
 #include "compile_timestamp.h"
 
-#if (__DATE_MONTH_INT__ == 2) && (__DATE_DAY_INT == 29)
+#if (__TIMESTAMP_MONTH_INT__ == 2) && (__TIMESTAMP_DAY_INT__ == 29)
   #error "Cannot compile on leap days"
 #endif
 ```
