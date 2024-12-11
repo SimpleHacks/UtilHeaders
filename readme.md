@@ -7,6 +7,9 @@ projects.  Each header has its own markdown file:
 * [compile_date.h](./src/compile_date.h) - Provides `constexpr` compliant
   macros to get integers corresponding to the compilate date / time.
   See [compile_date.md](./docs/compile_date.md) for more details.
+* [compile_timestamp.h](./src/compile_timestamp.h) - Provides `constexpr` compliant
+  macros to get integers corresponding to the file's last edited date / time.
+  See [compile_timestamp.md](./docs/compile_date.md) for more details.
 * [constexpr_strlen.h](./src/constexpr_strlen.h) - Provides `constexpr` compliant
   strlen for string literals via template function constexpr_strlen().
   See [constexpr_strlen.md](./docs/constexpr_strlen.md) for more details.

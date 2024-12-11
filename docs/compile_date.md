@@ -1,9 +1,11 @@
 
-# CompileDate.h
+# compile_date.h
+
 This repo provides header files that allow `C` and `C++` source
 files to generate integer representations of the compile date/time.
 
 These integer representations are `const` / `constexpr` compliant:
+
 * `__DATE_YEAR_INT__`
 * `__DATE_MONTH_INT__`
 * `__DATE_DAY_INT__`
@@ -13,11 +15,16 @@ These integer representations are `const` / `constexpr` compliant:
 * `__DATE_MSDOS_INT__`
 * `__TIME_MSDOS_INT__`
 
+The header also provides two `static const` null-termainated strings:
+
+* `__DATE_ISO8601_DATE__`, e.g., `"2022-12-25"`
+* `__DATE_ISO8601_DATETIME__`, e.g., `"2022-12-25T03:48:17"`
+
 As a silly example, this allows generation of code that will
 fail to compile on leap-days:
 
 ```C
-#include "compileDate.h"
+#include "compile_date.h"
 
 #if (__DATE_MONTH_INT__ == 2) && (__DATE_DAY_INT == 29)
   #error "Cannot compile on leap days"
