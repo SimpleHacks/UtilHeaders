@@ -15,7 +15,7 @@ These integer representations are `const` / `constexpr` compliant:
 * `__TIMESTAMP_MSDOS_DATE_INT__`
 * `__TIMESTAMP_MSDOS_TIME_INT__`
 
-The header also provides two `static const` null-termainated strings:
+The header also provides two `static const` null-terminated strings:
 
 * `__TIMESTAMP_ISO8601_DATE__`, e.g., `"2022-12-25"`
 * `__TIMESTAMP_ISO8601_DATETIME__`, e.g., `"2022-12-25T03:48:17"`
